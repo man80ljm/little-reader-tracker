@@ -2,41 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@400;600;700;800&display=swap');
+
+/* Design System — Children's Reading Visual Tracking Trainer */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Warm cream background */
+    --background: 46 100% 97%;
+    --foreground: 220 40% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 40% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 40% 18%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Sunshine yellow primary */
+    --primary: 42 96% 56%;
+    --primary-foreground: 220 40% 18%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Sky blue secondary */
+    --secondary: 200 80% 60%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 46 60% 92%;
+    --muted-foreground: 220 20% 50%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Coral accent */
+    --accent: 14 90% 65%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 46 30% 88%;
+    --input: 46 30% 88%;
+    --ring: 42 96% 56%;
 
-    --radius: 0.5rem;
+    --radius: 1rem;
+
+    /* Extra design tokens */
+    --sky: 200 80% 60%;
+    --sky-light: 200 80% 90%;
+    --coral: 14 90% 65%;
+    --coral-light: 14 90% 92%;
+    --mint: 150 60% 55%;
+    --mint-light: 150 60% 92%;
+    --lavender: 270 60% 68%;
+    --lavender-light: 270 60% 93%;
+    --sun: 42 96% 56%;
+    --sun-light: 42 96% 92%;
+
+    --gradient-hero: linear-gradient(135deg, hsl(42 96% 92%), hsl(200 80% 90%));
+    --gradient-card-sky: linear-gradient(135deg, hsl(200 80% 60%), hsl(220 70% 65%));
+    --gradient-card-coral: linear-gradient(135deg, hsl(14 90% 65%), hsl(340 80% 68%));
+    --gradient-card-mint: linear-gradient(135deg, hsl(150 60% 55%), hsl(170 60% 50%));
+    --gradient-card-sun: linear-gradient(135deg, hsl(42 96% 56%), hsl(30 90% 60%));
+
+    --shadow-playful: 0 8px 24px -4px hsl(220 40% 18% / 0.15), 0 2px 8px -2px hsl(220 40% 18% / 0.08);
+    --shadow-card: 0 4px 16px -2px hsl(220 40% 18% / 0.12);
+
+    --font-display: 'Baloo 2', cursive;
+    --font-body: 'Nunito', sans-serif;
 
     --sidebar-background: 0 0% 98%;
 
@@ -56,8 +84,8 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 220 40% 12%;
+    --foreground: 46 80% 96%;
 
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
@@ -101,5 +129,38 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-display);
   }
 }
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.5); }
+  100% { box-shadow: 0 0 0 20px hsl(var(--primary) / 0); }
+}
+@keyframes star-pop {
+  0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+  70% { transform: scale(1.2) rotate(5deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes track-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-pulse-ring { animation: pulse-ring 1.5s ease-out infinite; }
+.animate-star-pop { animation: star-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+.animate-track-bounce { animation: track-bounce 0.6s ease-in-out infinite; }
+
+.font-display { font-family: var(--font-display); }
+.font-body { font-family: var(--font-body); }
+
