@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { Eye, BookOpen, Target, Trophy, Home, ChevronLeft } from "lucide-react";
+import { Eye, BookOpen, Target, Trophy, Home, ChevronLeft, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SmoothPursuitTraining from "@/components/SmoothPursuitTraining";
 import SaccadeTraining from "@/components/SaccadeTraining";
 import ReadingTrainer from "@/components/ReadingTrainer";
+import EyeExercise from "@/components/EyeExercise";
 import ProgressPanel from "@/components/ProgressPanel";
 import owlCharacter from "@/assets/owl-character.png";
 
-type Screen = "home" | "smooth" | "saccade" | "reading" | "progress";
+type Screen = "home" | "smooth" | "saccade" | "reading" | "exercise" | "progress";
 
 interface SessionRecord {
   type: string;
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
   { id: "smooth" as Screen, label: "平滑追踪", desc: "训练眼球平滑移动", emoji: "🔄", bg: "var(--gradient-card-sky)", border: "hsl(var(--sky))" },
   { id: "saccade" as Screen, label: "快速扫视", desc: "训练眼球跳跃速度", emoji: "⚡", bg: "var(--gradient-card-coral)", border: "hsl(var(--coral))" },
   { id: "reading" as Screen, label: "阅读引导", desc: "跟随高亮词语阅读", emoji: "📖", bg: "var(--gradient-card-sun)", border: "hsl(var(--sun))" },
+  { id: "exercise" as Screen, label: "眼保健操", desc: "8节标准眼部体操", emoji: "💆", bg: "linear-gradient(135deg, hsl(var(--lavender)), hsl(var(--mint)))", border: "hsl(var(--lavender))" },
 ];
 
 const SCREEN_TITLES: Record<Screen, string> = {
@@ -27,6 +29,7 @@ const SCREEN_TITLES: Record<Screen, string> = {
   smooth: "平滑追踪训练",
   saccade: "快速扫视训练",
   reading: "阅读引导训练",
+  exercise: "眼保健操",
   progress: "我的成就",
 };
 
@@ -188,6 +191,9 @@ export default function Index() {
         {screen === "reading" && (
           <ReadingTrainer onComplete={handleComplete("reading", "📖")} />
         )}
+        {screen === "exercise" && (
+          <EyeExercise onComplete={handleComplete("exercise", "💆")} />
+        )}
         {screen === "progress" && (
           <ProgressPanel sessions={sessions} />
         )}
@@ -195,12 +201,13 @@ export default function Index() {
 
       {/* Bottom nav */}
       <nav className="sticky bottom-0 bg-card/90 backdrop-blur-md border-t border-border px-2 py-2">
-        <div className="max-w-2xl mx-auto grid grid-cols-4 gap-1">
+        <div className="max-w-2xl mx-auto grid grid-cols-5 gap-1">
           {[
             { id: "home" as Screen, icon: <Home className="w-5 h-5" />, label: "首页" },
             { id: "smooth" as Screen, icon: <Eye className="w-5 h-5" />, label: "追踪" },
             { id: "saccade" as Screen, icon: <Target className="w-5 h-5" />, label: "扫视" },
             { id: "reading" as Screen, icon: <BookOpen className="w-5 h-5" />, label: "阅读" },
+            { id: "exercise" as Screen, icon: <Sparkles className="w-5 h-5" />, label: "健操" },
           ].map((nav) => (
             <button
               key={nav.id}

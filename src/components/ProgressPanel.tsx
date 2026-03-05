@@ -25,12 +25,14 @@ const TYPE_ICONS: Record<string, string> = {
   smooth: "🔄",
   saccade: "⚡",
   reading: "📖",
+  exercise: "💆",
 };
 
 const TYPE_LABELS: Record<string, string> = {
   smooth: "平滑追踪",
   saccade: "快速扫视",
   reading: "阅读引导",
+  exercise: "眼保健操",
 };
 
 export default function ProgressPanel({ sessions }: ProgressPanelProps) {
