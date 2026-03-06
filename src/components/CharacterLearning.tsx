@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Volume2, RotateCcw, ChevronRight, CheckCircle2, Pencil, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HANZI_LIST, DIFFICULTY_LABELS, DIFFICULTY_COLORS, type HanziData } from "@/data/hanziData";
+import CharEvolutionStrip from "@/components/CharEvolutionStrip";
 
 interface CharacterLearningProps {
   onComplete: (score: number) => void;
@@ -348,6 +349,9 @@ export default function CharacterLearning({ onComplete, onLearnChar }: Character
               <p className="text-sm text-muted-foreground font-bold leading-relaxed">{selectedChar.imageDesc}</p>
             </div>
           </div>
+
+          {/* 象形演化条 */}
+          <CharEvolutionStrip char={selectedChar.char} />
 
           <div className="rounded-2xl bg-card border-2 border-border p-4">
             <div className="font-display font-bold text-base mb-2 flex items-center gap-2">
