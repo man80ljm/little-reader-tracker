@@ -11,6 +11,7 @@ interface SessionRecord {
 
 interface LearningResultProps {
   sessions: SessionRecord[];
+  learnedChars?: string[];
   onRestart?: () => void;
 }
 
@@ -39,7 +40,7 @@ const NEXT_LESSONS = [
   { char: "日", desc: "认识【日】字，太阳的样子", emoji: "☀️", type: "character" },
 ];
 
-export default function LearningResult({ sessions, onRestart }: LearningResultProps) {
+export default function LearningResult({ sessions, learnedChars: learnedCharsProp = [], onRestart }: LearningResultProps) {
   const [showAll, setShowAll] = useState(false);
 
   const charSessions = sessions.filter((s) => s.type === "character" || s.type === "context");
@@ -50,8 +51,10 @@ export default function LearningResult({ sessions, onRestart }: LearningResultPr
   const earnedBadges = BADGES_DEF.filter((b) => b.condition(sessions));
   const stars = Math.min(earnedBadges.length + Math.floor(sessions.length / 2), 5);
 
-  // Learned chars (simulate based on session counts)
-  const learnedChars = CHAR_EXAMPLES.slice(0, Math.max(1, Math.min(charSessions.length + 1, CHAR_EXAMPLES.length)));
+  // Use localStorage-backed learnedChars if available, fallback to session-based
+  const learnedChars = learnedCharsProp.length > 0
+    ? learnedCharsProp
+    : CHAR_EXAMPLES.slice(0, Math.max(0, Math.min(charSessions.length, CHAR_EXAMPLES.length)));
   const nextLesson = NEXT_LESSONS[sessions.length % NEXT_LESSONS.length];
 
   return (

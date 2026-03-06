@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, BookOpen, Target, Trophy, Home, ChevronLeft, Sparkles, GraduationCap, Map, BarChart2, Users } from "lucide-react";
+import { Eye, BookOpen, Target, Trophy, Home, ChevronLeft, GraduationCap, Users } from "lucide-react";
 import SmoothPursuitTraining from "@/components/SmoothPursuitTraining";
 import SaccadeTraining from "@/components/SaccadeTraining";
 import ReadingTrainer from "@/components/ReadingTrainer";
@@ -9,6 +9,7 @@ import CharacterLearning from "@/components/CharacterLearning";
 import ContextLearning from "@/components/ContextLearning";
 import LearningResult from "@/components/LearningResult";
 import ParentDashboard from "@/components/ParentDashboard";
+import { useProgress } from "@/hooks/useProgress";
 import owlCharacter from "@/assets/owl-character.png";
 
 type Screen =
@@ -23,13 +24,6 @@ type Screen =
   | "result"
   | "parent";
 
-interface SessionRecord {
-  type: string;
-  score: number;
-  date: string;
-  emoji: string;
-}
-
 const NAV_ITEMS = [
   { id: "smooth" as Screen, label: "平滑追踪", desc: "训练眼球平滑移动", emoji: "🔄", bg: "var(--gradient-card-sky)", border: "hsl(var(--sky))" },
   { id: "saccade" as Screen, label: "快速扫视", desc: "训练眼球跳跃速度", emoji: "⚡", bg: "var(--gradient-card-coral)", border: "hsl(var(--coral))" },
@@ -38,8 +32,8 @@ const NAV_ITEMS = [
 ];
 
 const HANZI_ITEMS = [
-  { id: "character" as Screen, label: "单字学习", desc: "认识汉字、学写笔顺", emoji: "✍️", bg: "linear-gradient(135deg, hsl(200 70% 55%), hsl(220 60% 60%))", border: "hsl(var(--sky))" },
-  { id: "context" as Screen, label: "情境探索", desc: "在故事场景中识字", emoji: "🗺️", bg: "linear-gradient(135deg, hsl(150 55% 40%), hsl(200 55% 38%))", border: "hsl(var(--mint))" },
+  { id: "character" as Screen, label: "单字学习", desc: "10个汉字、笔顺、描红", emoji: "✍️", bg: "linear-gradient(135deg, hsl(200 70% 55%), hsl(220 60% 60%))", border: "hsl(var(--sky))" },
+  { id: "context" as Screen, label: "情境探索", desc: "3个场景·9个汉字·难度进阶", emoji: "🗺️", bg: "linear-gradient(135deg, hsl(150 55% 40%), hsl(200 55% 38%))", border: "hsl(var(--mint))" },
   { id: "result" as Screen, label: "学习成果", desc: "查看今日学习情况", emoji: "🌟", bg: "linear-gradient(135deg, hsl(42 90% 55%), hsl(14 85% 60%))", border: "hsl(var(--sun))" },
   { id: "parent" as Screen, label: "家长报告", desc: "训练数据与学习建议", emoji: "👨‍👩‍👧", bg: "linear-gradient(135deg, hsl(270 50% 58%), hsl(300 45% 55%))", border: "hsl(var(--lavender))" },
 ];
@@ -51,29 +45,24 @@ const SCREEN_TITLES: Record<Screen, string> = {
   reading: "阅读引导训练",
   exercise: "眼保健操",
   progress: "我的成就",
-  character: "单字学习 — 山",
-  context: "情境学习 — 森林探索",
+  character: "单字学习",
+  context: "情境学习 — 选择场景",
   result: "今日学习成果",
   parent: "家长 / 教师报告",
 };
 
 export default function Index() {
   const [screen, setScreen] = useState<Screen>("home");
-  const [sessions, setSessions] = useState<SessionRecord[]>([]);
+  const { data, addSession, addLearnedChar, clearAll } = useProgress();
+  const { sessions, learnedChars } = data;
 
   const handleComplete = (type: string, emoji: string) => (score: number) => {
-    setSessions((prev) => [
-      ...prev,
-      {
-        type,
-        score,
-        date: new Date().toLocaleString("zh-CN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
-        emoji,
-      },
-    ]);
+    addSession({ type, score, emoji });
   };
 
-  const isHanziScreen = ["character", "context", "result", "parent"].includes(screen);
+  const handleLearnChar = (char: string) => {
+    addLearnedChar(char);
+  };
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: "var(--gradient-hero)" }}>
@@ -131,12 +120,28 @@ export default function Index() {
                 </div>
                 <div className="w-px bg-border" />
                 <div className="text-center">
+                  <div className="font-display font-black text-2xl text-foreground">{learnedChars.length}</div>
+                  <div className="text-xs text-muted-foreground font-bold">已学汉字</div>
+                </div>
+                <div className="w-px bg-border" />
+                <div className="text-center">
                   <div className="font-display font-black text-2xl text-foreground">
                     {sessions.length > 0 ? `${Math.round(sessions.reduce((a, b) => a + b.score, 0) / sessions.length)}%` : "--"}
                   </div>
                   <div className="text-xs text-muted-foreground font-bold">平均分</div>
                 </div>
               </div>
+              {/* Learned chars preview */}
+              {learnedChars.length > 0 && (
+                <div className="flex justify-center gap-1 mt-3 flex-wrap">
+                  {learnedChars.slice(0, 10).map((c, i) => (
+                    <span key={i} className="text-sm font-serif font-bold px-1.5 py-0.5 rounded-lg"
+                      style={{ background: "hsl(var(--sky) / 0.15)", color: "hsl(var(--sky))" }}>
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Section: Visual training */}
@@ -147,12 +152,9 @@ export default function Index() {
               </h3>
               <div className="grid gap-3">
                 {NAV_ITEMS.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setScreen(item.id)}
+                  <button key={item.id} onClick={() => setScreen(item.id)}
                     className="group relative rounded-3xl overflow-hidden text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    style={{ boxShadow: "var(--shadow-playful)" }}
-                  >
+                    style={{ boxShadow: "var(--shadow-playful)" }}>
                     <div className="p-4 flex items-center gap-4 text-white" style={{ background: item.bg }}>
                       <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-3xl flex-shrink-0 group-hover:scale-110 transition-transform">
                         {item.emoji}
@@ -185,12 +187,9 @@ export default function Index() {
               </h3>
               <div className="grid gap-3">
                 {HANZI_ITEMS.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setScreen(item.id)}
+                  <button key={item.id} onClick={() => setScreen(item.id)}
                     className="group relative rounded-3xl overflow-hidden text-left transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    style={{ boxShadow: "var(--shadow-playful)" }}
-                  >
+                    style={{ boxShadow: "var(--shadow-playful)" }}>
                     <div className="p-4 flex items-center gap-4 text-white" style={{ background: item.bg }}>
                       <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-3xl flex-shrink-0 group-hover:scale-110 transition-transform">
                         {item.emoji}
@@ -235,10 +234,26 @@ export default function Index() {
         {screen === "progress" && <ProgressPanel sessions={sessions} />}
 
         {/* HANZI LEARNING SCREENS */}
-        {screen === "character" && <CharacterLearning onComplete={handleComplete("character", "✍️")} />}
-        {screen === "context" && <ContextLearning onComplete={handleComplete("context", "🗺️")} />}
-        {screen === "result" && <LearningResult sessions={sessions} onRestart={() => setScreen("home")} />}
-        {screen === "parent" && <ParentDashboard sessions={sessions} />}
+        {screen === "character" && (
+          <CharacterLearning
+            onComplete={handleComplete("character", "✍️")}
+            onLearnChar={handleLearnChar}
+          />
+        )}
+        {screen === "context" && (
+          <ContextLearning
+            onComplete={handleComplete("context", "🗺️")}
+            onLearnChar={handleLearnChar}
+          />
+        )}
+        {screen === "result" && <LearningResult sessions={sessions} learnedChars={learnedChars} onRestart={() => setScreen("home")} />}
+        {screen === "parent" && (
+          <ParentDashboard
+            sessions={sessions}
+            learnedChars={learnedChars}
+            onClearData={clearAll}
+          />
+        )}
       </main>
 
       {/* Bottom nav */}
@@ -252,12 +267,9 @@ export default function Index() {
             { id: "character" as Screen, icon: <GraduationCap className="w-5 h-5" />, label: "汉字" },
             { id: "parent" as Screen, icon: <Users className="w-5 h-5" />, label: "报告" },
           ].map((nav) => (
-            <button
-              key={nav.id}
-              onClick={() => setScreen(nav.id)}
+            <button key={nav.id} onClick={() => setScreen(nav.id)}
               className={`flex flex-col items-center gap-1 py-2 px-1 rounded-xl transition-all
-                ${screen === nav.id ? "bg-primary/15 scale-105" : "hover:bg-muted"}`}
-            >
+                ${screen === nav.id ? "bg-primary/15 scale-105" : "hover:bg-muted"}`}>
               <div style={{ color: screen === nav.id ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))" }}>
                 {nav.icon}
               </div>

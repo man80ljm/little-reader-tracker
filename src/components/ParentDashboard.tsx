@@ -1,4 +1,6 @@
-import { Clock, BookOpen, CheckCircle2, AlertCircle, Lightbulb, TrendingUp } from "lucide-react";
+import { useState } from "react";
+import { Clock, BookOpen, CheckCircle2, AlertCircle, Lightbulb, TrendingUp, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface SessionRecord {
   type: string;
@@ -9,6 +11,8 @@ interface SessionRecord {
 
 interface ParentDashboardProps {
   sessions: SessionRecord[];
+  learnedChars?: string[];
+  onClearData?: () => void;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -42,7 +46,8 @@ const MODULE_STATUS = [
   { id: "context", label: "情境探索", icon: "🗺️", category: "汉字学习" },
 ];
 
-export default function ParentDashboard({ sessions }: ParentDashboardProps) {
+export default function ParentDashboard({ sessions, learnedChars = [], onClearData }: ParentDashboardProps) {
+  const [confirmClear, setConfirmClear] = useState(false);
   const completedTypes = new Set(sessions.map((s) => s.type));
   const totalMinutes = Math.round(sessions.length * 3.5); // ~3.5 min per session
   const avgScore = sessions.length > 0
@@ -57,7 +62,7 @@ export default function ParentDashboard({ sessions }: ParentDashboardProps) {
     byType[s.type].count++;
   });
 
-  const learnedChars = ["山", "水", "日"].slice(0, Math.max(1, Math.min(sessions.filter(s => ["character","context"].includes(s.type)).length + 1, 3)));
+  // learnedChars comes from props (localStorage-backed)
 
   return (
     <div className="flex flex-col gap-5">
@@ -199,9 +204,41 @@ export default function ParentDashboard({ sessions }: ParentDashboardProps) {
       {/* Note */}
       <div className="rounded-xl bg-muted/60 border border-border px-4 py-3">
         <p className="text-xs text-muted-foreground font-bold leading-relaxed text-center">
-          📌 本报告数据基于本次会话的训练记录，建议结合长期观察综合评估儿童学习状态
+          📌 本报告数据已通过本地存储保存，换人使用前请点击下方按钮清除数据
         </p>
       </div>
+
+      {/* Clear data */}
+      {onClearData && (
+        <div className="rounded-2xl border-2 border-dashed border-border p-4">
+          <h3 className="font-display font-bold text-sm mb-2 flex items-center gap-2 text-muted-foreground">
+            <Trash2 className="w-4 h-4" style={{ color: "hsl(var(--coral))" }} />
+            清除本地数据（换人使用前）
+          </h3>
+          {!confirmClear ? (
+            <Button variant="outline" size="sm"
+              className="rounded-xl font-bold border-dashed gap-2 text-muted-foreground hover:text-foreground"
+              onClick={() => setConfirmClear(true)}>
+              <Trash2 className="w-3.5 h-3.5" /> 清除所有训练记录
+            </Button>
+          ) : (
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-bold text-foreground">确定要清除全部记录吗？此操作不可撤销。</p>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="rounded-xl font-bold flex-1"
+                  onClick={() => setConfirmClear(false)}>
+                  取消
+                </Button>
+                <Button size="sm" className="rounded-xl font-bold flex-1 gap-1"
+                  style={{ background: "hsl(var(--coral))", color: "white", border: "none" }}
+                  onClick={() => { onClearData(); setConfirmClear(false); }}>
+                  <Trash2 className="w-3.5 h-3.5" /> 确认清除
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
