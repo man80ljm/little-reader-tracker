@@ -12,6 +12,29 @@ import ParentDashboard from "@/components/ParentDashboard";
 import { useProgress } from "@/hooks/useProgress";
 import owlCharacter from "@/assets/owl-character.png";
 
+const ENCOURAGEMENTS = [
+  "今天也要加油哦！💪",
+  "你的眼睛很棒，继续练习吧！👀",
+  "每天进步一点点，你是最棒的！🌟",
+  "坚持就是胜利，小朋友加油！🏆",
+  "汉字是我们的宝贝，一起来认识它们！📚",
+  "眼睛是心灵的窗户，好好爱护它！🌈",
+  "今天学到了什么？让我看看！🦉",
+  "小小眼睛，大大世界！✨",
+  "笔画一笔一划，写出美丽汉字！✍️",
+  "勇敢尝试，不怕犯错！😊",
+  "你的进步让我好开心！🎉",
+  "读书破万卷，下笔如有神！📖",
+  "认识汉字，走遍天下都不怕！🗺️",
+  "每个汉字都藏着一幅画，你发现了吗？🎨",
+  "眼睛跟着目标走，专注力越来越强！🎯",
+  "今天比昨天更厉害！⭐",
+  "你是我见过最努力的小朋友！🌸",
+  "练习让我们变得更聪明！🧠",
+  "一起探索汉字的奇妙世界吧！🌏",
+  "相信自己，你一定可以做到！🦋",
+];
+
 type Screen =
   | "home"
   | "smooth"
@@ -53,6 +76,7 @@ const SCREEN_TITLES: Record<Screen, string> = {
 
 export default function Index() {
   const [screen, setScreen] = useState<Screen>("home");
+  const [encouragement] = useState(() => ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)]);
   const { data, addSession, addLearnedChar, clearAll } = useProgress();
   const { sessions, learnedChars } = data;
 
@@ -109,8 +133,20 @@ export default function Index() {
             <div className="relative rounded-3xl overflow-hidden p-6 text-center"
               style={{ background: "linear-gradient(135deg, hsl(var(--sky-light)), hsl(var(--lavender-light)))" }}>
               <div className="absolute top-4 right-4 text-4xl opacity-20 select-none">✨✨</div>
-              <img src={owlCharacter} alt="Reading owl character"
-                className="w-32 h-32 mx-auto object-contain animate-float drop-shadow-lg" />
+              <div className="relative inline-block">
+                <img src={owlCharacter} alt="Reading owl character"
+                  className="w-32 h-32 mx-auto object-contain animate-float drop-shadow-lg" />
+                {/* Speech bubble */}
+                <div className="absolute -top-2 left-full ml-2 w-44 rounded-2xl rounded-bl-none px-3 py-2 text-left shadow-md"
+                  style={{ background: "hsl(var(--card))", border: "2px solid hsl(var(--primary) / 0.3)" }}>
+                  <p className="text-xs font-bold leading-snug" style={{ color: "hsl(var(--foreground))" }}>
+                    {encouragement}
+                  </p>
+                  {/* Tail */}
+                  <div className="absolute bottom-0 -left-2 w-0 h-0"
+                    style={{ borderTop: "8px solid transparent", borderRight: "8px solid hsl(var(--card))" }} />
+                </div>
+              </div>
               <h2 className="font-display font-black text-2xl text-foreground mt-2">你好，小朋友！</h2>
               <p className="text-muted-foreground font-bold mt-1">今天要练习哪种眼睛运动或汉字学习呢？</p>
               <div className="flex justify-center gap-6 mt-4">
