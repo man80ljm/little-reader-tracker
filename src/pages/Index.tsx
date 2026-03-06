@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Eye, BookOpen, Target, Trophy, Home, ChevronLeft, GraduationCap, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Eye, BookOpen, Target, Trophy, Home, ChevronLeft, GraduationCap, Users, Maximize2, Minimize2 } from "lucide-react";
 import SmoothPursuitTraining from "@/components/SmoothPursuitTraining";
 import SaccadeTraining from "@/components/SaccadeTraining";
 import ReadingTrainer from "@/components/ReadingTrainer";
@@ -77,8 +77,44 @@ const SCREEN_TITLES: Record<Screen, string> = {
 export default function Index() {
   const [screen, setScreen] = useState<Screen>("home");
   const [encouragement] = useState(() => ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)]);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const { data, addSession, addLearnedChar, clearAll } = useProgress();
   const { sessions, learnedChars } = data;
+
+  useEffect(() => {
+    const syncFullscreenState = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+
+    const handleKeydown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      const isEditable =
+        target instanceof HTMLElement &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+
+      if (isEditable) {
+        return;
+      }
+
+      if ((event.key === "f" || event.key === "F") && !event.ctrlKey && !event.altKey && !event.metaKey) {
+        event.preventDefault();
+        if (document.fullscreenElement) {
+          void document.exitFullscreen();
+        } else {
+          void document.documentElement.requestFullscreen();
+        }
+      }
+    };
+
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+    window.addEventListener("keydown", handleKeydown);
+    syncFullscreenState();
+
+    return () => {
+      document.removeEventListener("fullscreenchange", syncFullscreenState);
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  }, []);
 
   const handleComplete = (type: string, emoji: string) => (score: number) => {
     addSession({ type, score, emoji });
@@ -86,6 +122,15 @@ export default function Index() {
 
   const handleLearnChar = (char: string) => {
     addLearnedChar(char);
+  };
+
+  const toggleFullscreen = async () => {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+      return;
+    }
+
+    await document.documentElement.requestFullscreen();
   };
 
   return (
@@ -108,6 +153,14 @@ export default function Index() {
             <p className="text-xs text-muted-foreground font-bold mt-0.5">儿童阅读视觉辅助 · 汉字学习系统</p>
           )}
         </div>
+        <button
+          onClick={() => void toggleFullscreen()}
+          className={`h-10 rounded-xl border-2 px-4 flex items-center justify-center gap-2 text-sm font-bold transition-colors
+            ${isFullscreen ? "border-primary bg-primary/20 text-primary" : "border-border hover:bg-muted text-foreground"}`}
+        >
+          {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          <span>{isFullscreen ? "退出全屏（Esc）" : "全屏"}</span>
+        </button>
         <button
           onClick={() => setScreen("progress")}
           className={`relative w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-colors
